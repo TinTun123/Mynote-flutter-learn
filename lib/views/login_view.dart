@@ -3,7 +3,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mynote/constants/routes.dart';
 import 'package:mynote/firebase_options.dart';
+import 'package:mynote/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -63,27 +65,37 @@ class _LoginViewState extends State<LoginView> {
               email: email,
               password: password,
             );
-      
-            print(userCredential);
-                                  
+
+            final user = userCredential.user;
+            if (user != null && user.emailVerified) {
+              Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false);
+            } else {
+              await showErrorDialog(context, "Please verify your email first");
+            }
+            Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false);
+
             } on FirebaseAuthException catch (e) {
               if (e.code == "invalid-credential") {
-                print("Sorry Invalid credential");
+                await showErrorDialog(context, "Invalid credentials");
               } else if (e.code == "user-not-found") {
-                print("User not found");
+                await showErrorDialog(context, "User not found");
+
               } else if (e.code == "wrong-password") {
-                print("Wrong password");
+                await showErrorDialog(context, "Wrong password");
+
+              } else {
+                await showErrorDialog(context, "An error occurred");
               }
+            } catch (e) {
+              await showErrorDialog(context, "An error occurred: ${e.toString()}");
             }
-      
             }, child: const Text("Login")),
             TextButton(onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil('/register/', (route) => false);
+              Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route) => false);
             }, child: const Text("Not registered yet? Register here!")),
         ],
       ),
     );
   } 
-  
-  
 }
+

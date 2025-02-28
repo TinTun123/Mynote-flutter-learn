@@ -3,7 +3,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mynote/constants/routes.dart';
 import 'package:mynote/firebase_options.dart';
+import 'package:mynote/utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -60,27 +62,32 @@ class _RegisterViewState extends State<RegisterView> {
             final password = _password.text;
       
             try {
-              final userCredential =  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              await FirebaseAuth.instance.createUserWithEmailAndPassword(
                 email: email,
                 password: password,
               );
-      
-              print(userCredential);
-            
+              final user = FirebaseAuth.instance.currentUser;
+              user?.sendEmailVerification();
+              Navigator.of(context).pushNamed(verifyEmailRoute);
+
             } on FirebaseAuthException catch (e) {
               if (e.code == "weak-password") {
-                print("The password provided is too weak.");
+                await showErrorDialog(context, "The password provided is too weak.");
               } else if (e.code == "invalid-email") {
-                print("The email provided is invalid.");
+                await showErrorDialog(context, "The email provided is invalid.");
       
               } else if (e.code == "email-already-in-use") {
-                print("The email provided is already in use.");
+                await showErrorDialog(context, "The email provided is already in use.");
+              } else {
+                await showErrorDialog(context, e.code.toString());
               }
+            } catch (e) {
+              await showErrorDialog(context, e.toString());
             }
             
             }, child: const Text("Register")),
             TextButton(onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil('/login/', (route) => false);
+              Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false);
             }, child: const Text("Already registered? Login here!")),
         ],
       ),
