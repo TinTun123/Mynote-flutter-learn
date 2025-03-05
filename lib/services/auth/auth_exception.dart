@@ -38,3 +38,11 @@ class UserNotLoginException implements Exception {
 class WrongPasswordException implements Exception {
   final String message = 'Wrong password';
 }
+
+class InvalidPasswordException implements Exception {
+  final String message = 'Invalid password';
+} 
+
+class UserDisabledException implements Exception {
+  final String message = 'User disabled';
+} 

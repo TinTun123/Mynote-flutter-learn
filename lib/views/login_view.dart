@@ -1,10 +1,7 @@
-
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynote/constants/routes.dart';
-import 'package:mynote/firebase_options.dart';
+import 'package:mynote/services/auth/auth_exception.dart';
+import 'package:mynote/services/auth/auth_service.dart';
 import 'package:mynote/utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -61,31 +58,31 @@ class _LoginViewState extends State<LoginView> {
             final password = _password.text;
             try {
         
-            final userCredential =  await FirebaseAuth.instance.signInWithEmailAndPassword(
-              email: email,
-              password: password,
-            );
+            final userCredential =  await AuthService.firebase().login(email: email, password: password);
 
-            final user = userCredential.user;
-            if (user != null && user.emailVerified) {
+            final user = AuthService.firebase().currentUser;
+
+            if (user != null && user.isEmailVerified) {
               Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false);
             } else {
               await showErrorDialog(context, "Please verify your email first");
             }
             Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false);
 
-            } on FirebaseAuthException catch (e) {
-              if (e.code == "invalid-credential") {
-                await showErrorDialog(context, "Invalid credentials");
-              } else if (e.code == "user-not-found") {
-                await showErrorDialog(context, "User not found");
-
-              } else if (e.code == "wrong-password") {
-                await showErrorDialog(context, "Wrong password");
-
-              } else {
-                await showErrorDialog(context, "An error occurred");
-              }
+            } on InvalidEmailException catch (e) {
+              await showErrorDialog(context, "Invalid email");
+            } on InvalidPasswordException catch (e) {
+              await showErrorDialog(context, "Invalid password");
+            } on UserNotFoundException catch (e) {
+              await showErrorDialog(context, "User not found");
+            } on UserDisabledException catch (e) {
+              await showErrorDialog(context, "User disabled");
+            } on EmailAlreadyInUseException catch (e) {
+              await showErrorDialog(context, "Email already in use");
+            } on WeakPasswordException catch (e) {
+              await showErrorDialog(context, "Weak password");
+            } on GenericAuthException catch (e) {
+              await showErrorDialog(context, "An error occurred. Please try again later!");
             } catch (e) {
               await showErrorDialog(context, "An error occurred: ${e.toString()}");
             }

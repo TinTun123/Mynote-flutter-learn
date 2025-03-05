@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:mynote/firebase_options.dart';
 import 'package:mynote/services/auth/auth_exception.dart';
 import 'package:mynote/services/auth/auth_provider.dart';
 import 'package:mynote/services/auth/auth_user.dart';
@@ -29,7 +31,7 @@ class FirebaseAuthProvider implements AuthProvider {
     catch (e) {
       throw GenericAuthException();
     }
-  }
+  } 
 
   @override
   // TODO: implement currentUser
@@ -87,6 +89,13 @@ class FirebaseAuthProvider implements AuthProvider {
     } else {
       throw UserNotLoginException();
     }
+  }
+  
+  @override
+  Future<void> initialize () async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 
 }
