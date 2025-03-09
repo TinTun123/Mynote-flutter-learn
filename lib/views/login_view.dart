@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mynote/constants/routes.dart';
 import 'package:mynote/services/auth/auth_exception.dart';
 import 'package:mynote/services/auth/auth_service.dart';
-import 'package:mynote/utilities/show_error_dialog.dart';
+import 'package:mynote/utilities/dialogs/error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -69,19 +69,19 @@ class _LoginViewState extends State<LoginView> {
             }
             Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (route) => false);
 
-            } on InvalidEmailException catch (e) {
+            } on InvalidEmailException {
               await showErrorDialog(context, "Invalid email");
-            } on InvalidPasswordException catch (e) {
+            } on InvalidPasswordException {
               await showErrorDialog(context, "Invalid password");
-            } on UserNotFoundException catch (e) {
+            } on UserNotFoundException {
               await showErrorDialog(context, "User not found");
-            } on UserDisabledException catch (e) {
+            } on UserDisabledException {
               await showErrorDialog(context, "User disabled");
-            } on EmailAlreadyInUseException catch (e) {
+            } on EmailAlreadyInUseException {
               await showErrorDialog(context, "Email already in use");
-            } on WeakPasswordException catch (e) {
+            } on WeakPasswordException {
               await showErrorDialog(context, "Weak password");
-            } on GenericAuthException catch (e) {
+            } on GenericAuthException {
               await showErrorDialog(context, "An error occurred. Please try again later!");
             } catch (e) {
               await showErrorDialog(context, "An error occurred: ${e.toString()}");

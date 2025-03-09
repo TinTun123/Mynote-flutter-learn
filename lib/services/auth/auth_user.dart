@@ -5,10 +5,11 @@ import "package:mynote/services/auth/auth_provider.dart";
 @immutable
 class AuthUser {
   final bool isEmailVerified;
-
-  const AuthUser({required this.isEmailVerified});
+  final String? email;
+  const AuthUser({required this.isEmailVerified, required this.email});
+  
   factory AuthUser.fromFirebaseUser(User user) {
-    return AuthUser(isEmailVerified:  user.emailVerified);
+    return AuthUser(isEmailVerified:  user.emailVerified, email: user.email); 
   }
 
   void testing () {
@@ -21,7 +22,7 @@ class NotInitializedException implements Exception {
 }
 
 class MockAuthProvider implements AuthProvider {
-  var _isInitialized = false;
+  final _isInitialized = false;
   AuthUser? user;
   bool get isInitialized => _isInitialized;
   @override
